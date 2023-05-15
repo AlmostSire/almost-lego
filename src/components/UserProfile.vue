@@ -25,8 +25,8 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useGlobalStore } from '../stores'
 
-const globalStore = useGlobalStore()
-const user = globalStore.user
+const userStore = useGlobalStore().user
+const { user } = userStore
 const router = useRouter()
 const createDesign = async () => {
   // const payload = {
@@ -46,13 +46,13 @@ const createDesign = async () => {
 }
 
 const login = () => {
-  globalStore.login()
+  userStore.login()
   message.success('登录成功', 2)
   console.log(user)
 }
 
 const logout = () => {
-  globalStore.logout()
+  userStore.logout()
   //store.commit('logout')
   message.success('退出登录成功，2秒后跳转到首页', 2)
   setTimeout(() => {

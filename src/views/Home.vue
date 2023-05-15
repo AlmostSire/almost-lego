@@ -8,7 +8,9 @@
 import TemplateList from '../components/TemplateList.vue'
 import { useGlobalStore } from '@/stores'
 
-const { templates } = useGlobalStore()
+const {
+  template: { templates }
+} = useGlobalStore()
 </script>
 
 <style>

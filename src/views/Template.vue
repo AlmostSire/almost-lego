@@ -30,7 +30,9 @@
 import { useRoute } from 'vue-router'
 import { useGlobalStore } from '@/stores'
 import { computed } from 'vue'
-const { getTemplateById } = useGlobalStore()
+const {
+  template: { getTemplateById }
+} = useGlobalStore()
 const route = useRoute()
 const currentId = route.params.id as string
 
