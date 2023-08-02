@@ -4,7 +4,19 @@
     <router-link to="/about">About</router-link>
   </nav>
   <router-view />
+  <Hello msg="hello world" />
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import Hello from "./components/Hello";
+export default defineComponent({
+  name: "app",
+  components: {
+    Hello,
+  },
+});
+</script>
 
 <style lang="less">
 #app {
