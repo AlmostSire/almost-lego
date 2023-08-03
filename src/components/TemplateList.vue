@@ -17,8 +17,8 @@
             <a-card-meta :title="item.title">
               <template v-slot:description>
                 <div class="description-detail">
-                  <span>作者：Test</span>
-                  <span class="user-number">0</span>
+                  <span>作者：{{ item.author }}</span>
+                  <span class="user-number">{{ item.copiedCount }}</span>
                 </div>
               </template>
             </a-card-meta>
@@ -30,17 +30,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { PropType, defineComponent } from "vue";
+import { TemplateProps } from "@/store/templates";
 export default defineComponent({
   name: "template-list",
   props: {
     list: {
-      type: Array,
+      type: Array as PropType<TemplateProps[]>,
       required: true,
-    },
-    type: {
-      type: String,
-      default: "work",
     },
   },
 });
