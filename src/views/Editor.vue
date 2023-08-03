@@ -1,7 +1,7 @@
 <template>
   <div class="editor" id="editor-layout-main">
     <a-layout>
-      <a-layout-sider width="300">
+      <a-layout-sider width="300" :style="{ background: 'red' }">
         <div class="sidebar-container">组件列表</div>
         <ComponentList :list="defaultTemplates" @on-item-click="addItem" />
       </a-layout-sider>
@@ -9,23 +9,32 @@
         <a-layout-content class="preview-container">
           <p>画布区域</p>
           <div class="preview-list" id="canvas-area">
-            <component
+            <EditWrapper
               v-for="component in components"
-              :is="component.name"
               :key="component.id"
-              :="component.props"
+              :id="component.id"
+              :active="component.id === currentElement?.id"
+              @set-active="setActive"
             >
-              {{ component.props.text }}
-            </component>
+              <component :is="component.name" :="component.props">
+                {{ component.props.text }}
+              </component>
+            </EditWrapper>
           </div>
         </a-layout-content>
       </a-layout>
       <a-layout-sider
         width="300"
-        style="background: purple"
+        style="background: #fff"
         class="settings-panel"
       >
         组件属性
+
+        <PropsTable
+          v-if="currentElement"
+          :data="currentElement.props"
+          @change="handleChange"
+        />
       </a-layout-sider>
     </a-layout>
   </div>
@@ -36,26 +45,44 @@ import { GlobalDataProps } from "@/store";
 import { computed, defineComponent } from "vue";
 import { useStore } from "vuex";
 import ComponentList from "@/components/ComponentList.vue";
+import EditWrapper from "@/components/EditWrapper.vue";
 import LText from "@/components/LText.vue";
+import PropsTable from "@/components/PropsTable.vue";
 import defaultTemplates from "@/defaultTemplates";
 import { AllComponentProps } from "@/defaultProps";
+import { ComponentData } from "@/store/editor";
+import { PropsKeys } from "@/propsMap";
 
 export default defineComponent({
   name: "Editor",
   components: {
     LText,
     ComponentList,
+    EditWrapper,
+    PropsTable,
   },
   setup() {
     const store = useStore<GlobalDataProps>();
     const components = computed(() => store.state.editor.components);
+    const currentElement = computed<ComponentData | null>(
+      () => store.getters.getCurrentElement
+    );
     const addItem = (props: AllComponentProps) => {
       store.commit("addComponent", props);
     };
+    const setActive = (id: string) => {
+      store.commit("setActive", id);
+    };
+    const handleChange = (e: { key: PropsKeys; value: string }) => {
+      store.commit("updateComponent", e);
+    };
     return {
+      currentElement,
       components,
       defaultTemplates,
       addItem,
+      setActive,
+      handleChange,
     };
   },
 });

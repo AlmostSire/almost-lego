@@ -2,6 +2,7 @@ import { Module } from "vuex";
 import { GlobalDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
 import { AllComponentProps } from "@/defaultProps";
+import { PropsKeys } from "@/propsMap";
 
 export interface EditorProps {
   // 供中间编辑器渲染的数组
@@ -82,6 +83,24 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     delComponent(state, id: string) {
       const index = state.components.findIndex((item) => item.id === id);
       state.components.splice(index, 1);
+    },
+    setActive(state, id: string) {
+      state.currentElement = id;
+    },
+    updateComponent(state, { key, value }: { key: PropsKeys; value: string }) {
+      const currentComponent = state.components.find(
+        (component) => component.id === state.currentElement
+      );
+      if (currentComponent) {
+        currentComponent.props[key as PropsKeys] = value;
+      }
+    },
+  },
+  getters: {
+    getCurrentElement(state) {
+      return state.components.find(
+        (component) => component.id === state.currentElement
+      );
     },
   },
 };
