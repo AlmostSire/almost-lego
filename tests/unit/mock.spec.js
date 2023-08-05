@@ -1,7 +1,6 @@
 const getUserName = require("./user");
 const axios = require("axios").default;
-// jest.mock("axios");
-// axios.get.mockResolvedValue({ data: { username: "almost" } });
+axios.get.mockResolvedValue({ data: { username: "almostlover" } });
 function mockTest(shouldCall, cb) {
   if (shouldCall) {
     return cb(42);

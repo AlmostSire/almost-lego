@@ -1,4 +1,5 @@
 <template>
+  <Uploader action="https://www.baidu.com" />
   <div class="homepage-container">
     <a-layout :style="{ background: '#fff' }">
       <a-layout-header class="header">
@@ -21,6 +22,7 @@ import { computed } from "vue";
 import UserProfile from "../components/UserProfile.vue";
 import { useStore } from "vuex";
 import { GlobalDataProps } from "@/store";
+import Uploader from "@/components/Uploader.vue";
 
 const store = useStore<GlobalDataProps>();
 const user = computed(() => store.state.user);

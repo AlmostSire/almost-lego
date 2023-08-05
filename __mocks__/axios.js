@@ -1,5 +1,6 @@
 const axios = {
-  get: jest.fn(() => Promise.resolve({ data: { username: "almostlover" } })),
+  get: jest.fn(),
+  post: jest.fn(),
 };
 
 export default axios;
