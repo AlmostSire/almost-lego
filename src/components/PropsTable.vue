@@ -25,12 +25,13 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { computed } from "vue";
+<script lang="ts">
+import { PropType, computed, defineComponent } from "vue";
 import { reduce } from "lodash-es";
 import { mapPropsToForms, PropsKeys, PropToForm } from "../propsMap";
 import { AllComponentProps } from "../defaultProps";
 import RenderVnode from "./RenderVnode";
+import ColorPicker from "./ColorPicker.vue";
 
 interface FormProps extends PropToForm {
   value: string;
@@ -39,42 +40,58 @@ interface FormProps extends PropToForm {
   events: Record<string, (e: unknown) => void>;
 }
 
-const props = defineProps<{ data: AllComponentProps }>();
-const emit = defineEmits(["change"]);
-const finalProps = computed(() =>
-  reduce(
-    props.data,
-    (result, value, key) => {
-      const newKey = key as PropsKeys;
-      const item = mapPropsToForms[newKey];
-      if (item) {
-        const {
-          valueProp = "value",
-          eventName = "change",
-          initialTransform,
-          afterTransform,
-        } = item;
-        const newItem: FormProps = {
-          ...item,
-          valueProp,
-          eventName,
-          value: initialTransform ? initialTransform(value) : value,
-          events: {
-            [eventName]: (e: unknown) => {
-              emit("change", {
-                key,
-                value: afterTransform ? afterTransform(e) : e,
-              });
-            },
-          },
-        };
-        result[newKey] = newItem;
-      }
-      return result;
+export default defineComponent({
+  components: {
+    RenderVnode,
+    ColorPicker,
+  },
+  props: {
+    data: {
+      type: Object as PropType<AllComponentProps>,
+      required: true,
     },
-    {} as { [k in PropsKeys]: FormProps }
-  )
-);
+  },
+  emits: ["change"],
+  setup(props, context) {
+    const finalProps = computed(() =>
+      reduce(
+        props.data,
+        (result, value, key) => {
+          const newKey = key as PropsKeys;
+          const item = mapPropsToForms[newKey];
+          if (item) {
+            const {
+              valueProp = "value",
+              eventName = "change",
+              initialTransform,
+              afterTransform,
+            } = item;
+            const newItem: FormProps = {
+              ...item,
+              valueProp,
+              eventName,
+              value: initialTransform ? initialTransform(value) : value,
+              events: {
+                [eventName]: (e: unknown) => {
+                  context.emit("change", {
+                    key,
+                    value: afterTransform ? afterTransform(e) : e,
+                  });
+                },
+              },
+            };
+            result[newKey] = newItem;
+          }
+          return result;
+        },
+        {} as { [k in PropsKeys]: FormProps }
+      )
+    );
+    return {
+      finalProps,
+    };
+  },
+});
 </script>
 
 <style>
