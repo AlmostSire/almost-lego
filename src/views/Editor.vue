@@ -47,9 +47,9 @@ import { useStore } from "vuex";
 import ComponentList from "@/components/ComponentList.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
 import LText from "@/components/LText.vue";
+import LImage from "@/components/LImage.vue";
 import PropsTable from "@/components/PropsTable.vue";
 import defaultTemplates from "@/defaultTemplates";
-import { AllComponentProps } from "@/defaultProps";
 import { ComponentData } from "@/store/editor";
 import { PropsKeys } from "@/propsMap";
 
@@ -57,6 +57,7 @@ export default defineComponent({
   name: "Editor",
   components: {
     LText,
+    LImage,
     ComponentList,
     EditWrapper,
     PropsTable,
@@ -67,8 +68,8 @@ export default defineComponent({
     const currentElement = computed<ComponentData | null>(
       () => store.getters.getCurrentElement
     );
-    const addItem = (props: AllComponentProps) => {
-      store.commit("addComponent", props);
+    const addItem = (component: ComponentData) => {
+      store.commit("addComponent", component);
     };
     const setActive = (id: string) => {
       store.commit("setActive", id);

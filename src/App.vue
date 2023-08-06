@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
-    <Uploader
+    <!-- <Uploader
       drag
       action="http://localhost:7001/api/utils/upload-img"
-      :auto-upload="false"
+      :auto-upload="true"
       list-type="picture"
     >
       <h4>上传图片</h4>
@@ -14,34 +14,34 @@
         <img :src="uploadedData.data[0]" />
         <h3>点击重新上传</h3>
       </template>
-    </Uploader>
+    </Uploader> -->
     <RouterView></RouterView>
   </div>
 </template>
 <script setup lang="ts">
-import Uploader from "./components/Uploader.vue";
+//import Uploader from "./components/Uploader.vue";
 </script>
 <style lang="less">
-.file-upload .upload-area {
-  background-color: #efefef;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 20px;
-  width: 360px;
-  height: 180px;
-  text-align: center;
-  &:hover {
-    border: 1px dashed #1890ff;
-  }
-  &.is-dragover {
-    border: 2px dashed #1890ff;
-    background-color: rgba(#1890ff, 0.2);
-  }
-}
-.upload-area img {
-  height: 100px;
-}
+// .file-upload .upload-area {
+//   background-color: #efefef;
+//   border: 1px dashed #ccc;
+//   border-radius: 4px;
+//   cursor: pointer;
+//   padding: 20px;
+//   width: 360px;
+//   height: 180px;
+//   text-align: center;
+//   &:hover {
+//     border: 1px dashed #1890ff;
+//   }
+//   &.is-dragover {
+//     border: 2px dashed #1890ff;
+//     background-color: rgba(#1890ff, 0.2);
+//   }
+// }
+// .upload-area img {
+//   height: 100px;
+// }
 html,
 body {
   margin: 0;

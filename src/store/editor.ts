@@ -72,13 +72,13 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     currentElement: "",
   },
   mutations: {
-    addComponent(state, props: AllComponentProps) {
-      const newComponent = {
-        id: uuidv4(),
-        name: "l-text",
-        props,
-      };
-      state.components.push(newComponent);
+    addComponent(state, component: ComponentData) {
+      // const newComponent = {
+      //   id: uuidv4(),
+      //   name: "l-text",
+      //   props,
+      // };
+      state.components.push(component);
     },
     delComponent(state, id: string) {
       const index = state.components.findIndex((item) => item.id === id);

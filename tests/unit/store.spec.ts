@@ -1,5 +1,5 @@
 import store from "@/store";
-
+import { v4 as uuidv4 } from "uuid";
 import { testData } from "@/store/templates";
 
 import { testComponents, ComponentData } from "@/store/editor";
@@ -54,8 +54,12 @@ describe("test vuex store", () => {
       expect(currentElement.id).toBe(cloneComponents[0].id);
     });
     it("add component should works fine", () => {
-      const payload: Partial<AllComponentProps> = {
-        text: "text1",
+      const payload: ComponentData = {
+        name: "l-text",
+        id: uuidv4(),
+        props: {
+          text: "text1",
+        },
       };
 
       store.commit("addComponent", payload);
