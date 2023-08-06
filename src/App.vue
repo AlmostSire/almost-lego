@@ -1,6 +1,11 @@
 <template>
   <div class="app-container">
-    <Uploader drag action="http://localhost:7001/api/utils/upload-img">
+    <Uploader
+      drag
+      action="http://localhost:7001/api/utils/upload-img"
+      :auto-upload="false"
+      list-type="picture"
+    >
       <h4>上传图片</h4>
       <template #loading>
         <h4>上传中</h4>

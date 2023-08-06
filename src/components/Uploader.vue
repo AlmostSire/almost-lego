@@ -26,12 +26,18 @@
       ref="fileInput"
       @change="handleFileChange"
     />
-    <ul class="upload-list">
+    <ul :class="`upload-list upload-list-${listType}`">
       <li
         v-for="file in fileList"
         :key="file.uid"
         :class="`uploaded-file upload-${file.status}`"
       >
+        <img
+          v-if="file.url && listType === 'picture'"
+          class="upload-list-thumbnail"
+          :src="file.url"
+          :alt="file.name"
+        />
         <span class="file-icon">
           <LoadingOutlined v-if="file.status === 'loading'" />
           <FileOutlined v-else />
@@ -56,6 +62,7 @@ import {
 } from "@ant-design/icons-vue";
 import { last } from "lodash-es";
 type UploadStatus = "ready" | "loading" | "success" | "error";
+type FileListType = "picture" | "text";
 type CheckUpload = (file: File) => boolean | Promise<File>;
 export interface UploadFile {
   uid: string;
@@ -64,6 +71,7 @@ export interface UploadFile {
   status: UploadStatus;
   raw: File;
   resp?: any;
+  url?: string;
 }
 
 export default defineComponent({
@@ -77,6 +85,10 @@ export default defineComponent({
     autoUpload: {
       type: Boolean,
       default: true,
+    },
+    listType: {
+      type: String as PropType<FileListType>,
+      default: "text",
     },
   },
   components: {
@@ -139,6 +151,18 @@ export default defineComponent({
         status: "ready",
         raw: uploadedFile,
       });
+      if (props.listType === "picture") {
+        try {
+          fileObj.url = URL.createObjectURL(uploadedFile);
+        } catch (err) {
+          console.error("upload File error", err);
+        }
+        // const fileReader = new FileReader();
+        // fileReader.readAsDataURL(uploadedFile);
+        // fileReader.addEventListener("load", () => {
+        //   fileObj.url = fileReader.result as string;
+        // });
+      }
       fileList.value.push(fileObj);
       if (props.autoUpload) {
         postFile(fileObj);
@@ -210,6 +234,7 @@ export default defineComponent({
       fileList,
       isDragOver,
       events,
+      fileInput,
       handleFileChange,
       removeFile,
       uploadFiles,

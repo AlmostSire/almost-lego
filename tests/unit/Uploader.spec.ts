@@ -258,6 +258,29 @@ describe("Uploader Component", () => {
     expect(firstItem.classes()).toContain("upload-success");
   });
 
+  it("PictureList mode should works fine", async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: { url: "dummy.url", errno: 0 },
+    });
+    window.URL.createObjectURL = jest.fn(() => "test.url");
+    const wrapper = mount(Uploader, {
+      props: {
+        action: "test.url",
+        listType: "picture",
+        autoUpload: false,
+      },
+    });
+    expect(wrapper.get("ul").classes()).toContain("upload-list-picture");
+    const fileInput = wrapper.get("input").element as HTMLInputElement;
+    setInputValue(fileInput);
+    await wrapper.get("input").trigger("change");
+    await flushPromises();
+    expect(wrapper.findAll("li").length).toBe(1);
+    expect(wrapper.find("li:first-child img").exists()).toBeTruthy();
+    const firstImg = wrapper.get("li:first-child img");
+    expect(firstImg.attributes("src")).toEqual("test.url");
+  });
+
   afterEach(() => {
     mockedAxios.post.mockReset();
   });
