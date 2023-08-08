@@ -1,13 +1,12 @@
 import store from "@/store";
-import { v4 as uuidv4 } from "uuid";
+
 import { testData } from "@/store/templates";
 
 import { testComponents, ComponentData } from "@/store/editor";
 
-// import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 import { clone, last } from "lodash-es";
-import { AllComponentProps } from "@/defaultProps";
 
 const cloneComponents = clone(testComponents);
 

@@ -1,8 +1,14 @@
 <template>
   <div class="props-table">
-    <div v-for="(value, key) in finalProps" :key="key" class="prop-item">
-      <span class="label">{{ value?.text }}</span>
-      <div class="prop-component">
+    <div
+      v-for="(value, key) in finalProps"
+      :key="key"
+      :class="['prop-item', value.text ? '' : 'no-text']"
+    >
+      <span class="label">
+        {{ value?.text }}
+      </span>
+      <div :class="`prop-component component-${value.component}`">
         <component
           :is="value.component"
           :[value.valueProp]="value.value"
@@ -32,6 +38,7 @@ import { mapPropsToForms, PropsKeys, PropToForm } from "../propsMap";
 import { AllComponentProps } from "../defaultProps";
 import RenderVnode from "./RenderVnode";
 import ColorPicker from "./ColorPicker.vue";
+import ImageProcesser from "./ImageProcesser.vue";
 
 interface FormProps extends PropToForm {
   value: string;
@@ -44,6 +51,7 @@ export default defineComponent({
   components: {
     RenderVnode,
     ColorPicker,
+    ImageProcesser,
   },
   props: {
     data: {
@@ -105,7 +113,18 @@ export default defineComponent({
   width: 28%;
 }
 
+.prop-item.no-text {
+  display: inline-block;
+  margin: 0 10px 0 0;
+}
+
 .prop-component {
   width: 70%;
+}
+
+.prop-component.component-shadow-picker,
+.prop-component.component-image-processer,
+.prop-component.component-background-processer {
+  width: 100%;
 }
 </style>

@@ -15,10 +15,8 @@ export interface PropToForm {
   }[];
   initialTransform?: Transform<any, any>;
   afterTransform?: Transform<any, any>;
-  value?: string;
   valueProp?: string;
   eventName?: string;
-  events?: Record<string, (e: unknown) => void>;
 }
 
 export type PropsToForms = {
@@ -80,5 +78,8 @@ export const mapPropsToForms: PropsToForms = {
   color: {
     component: "color-picker",
     text: "字体颜色",
+  },
+  src: {
+    component: "image-processer",
   },
 };

@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { AllComponentProps, imageDefaultProps } from "@/defaultProps";
-import LText from "@/components/LText.vue";
+// import LText from "@/components/LText.vue";
 import StyledUploader from "./StyledUploader.vue";
 import { UploadResp } from "@/extraType";
 import { ComponentData } from "@/store/editor";

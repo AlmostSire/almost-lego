@@ -57,13 +57,13 @@ export const testComponents: ComponentData[] = [
       fontFamily: "",
     },
   },
-  // {
-  //   id: uuidv4(),
-  //   name: "l-image",
-  //   props: {
-  //     src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-  //   },
-  // },
+  {
+    id: uuidv4(),
+    name: "l-image",
+    props: {
+      src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    },
+  },
 ];
 
 const editor: Module<EditorProps, GlobalDataProps> = {
@@ -92,7 +92,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         (component) => component.id === state.currentElement
       );
       if (currentComponent) {
-        currentComponent.props[key as PropsKeys] = value;
+        currentComponent.props[key] = value;
       }
     },
   },

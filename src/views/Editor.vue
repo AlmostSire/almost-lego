@@ -46,7 +46,7 @@ import { computed, defineComponent } from "vue";
 import { useStore } from "vuex";
 import ComponentList from "@/components/ComponentList.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
-import LText from "@/components/LText.vue";
+// import LText from "@/components/LText.vue";
 import LImage from "@/components/LImage.vue";
 import PropsTable from "@/components/PropsTable.vue";
 import defaultTemplates from "@/defaultTemplates";
@@ -56,7 +56,7 @@ import { PropsKeys } from "@/propsMap";
 export default defineComponent({
   name: "Editor",
   components: {
-    LText,
+    // LText,
     LImage,
     ComponentList,
     EditWrapper,
