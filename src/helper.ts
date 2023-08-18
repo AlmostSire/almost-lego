@@ -55,3 +55,15 @@ export const getImgDemensions = (urlOrFile: string | File) => {
     });
   });
 };
+
+export const getParentElement = (element: HTMLElement, className: string) => {
+  let current = element;
+  while (current) {
+    if (current.classList && current.classList.contains(className)) {
+      return current;
+    } else {
+      current = current.parentNode as HTMLElement;
+    }
+  }
+  return null;
+};

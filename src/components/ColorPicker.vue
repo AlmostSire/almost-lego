@@ -46,6 +46,7 @@ const onChange = (color: string) => {
   emit("change", color);
 };
 </script>
+
 <style>
 .lego-color-picker {
   display: flex;

@@ -48,7 +48,7 @@ describe("test vuex store", () => {
     });
     it("should get current component when set active one component", () => {
       store.commit("setActive", cloneComponents[0].id);
-      expect(store.state.editor.currentElement).toBe(cloneComponents[0].id);
+      expect(store.state.editor.currentComponentId).toBe(cloneComponents[0].id);
       const currentElement = store.getters.getCurrentElement;
       expect(currentElement.id).toBe(cloneComponents[0].id);
     });
