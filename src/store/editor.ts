@@ -1,7 +1,11 @@
 import { Module } from "vuex";
 import { GlobalDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
-import { AllComponentProps } from "@/defaultProps";
+import {
+  AllComponentProps,
+  textDefaultProps,
+  imageDefaultProps,
+} from "@/defaultProps";
 import { PropsKeys } from "@/propsMap";
 
 export interface EditorProps {
@@ -31,6 +35,7 @@ export const testComponents: ComponentData[] = [
     name: "LText",
     layerName: "图层1",
     props: {
+      ...textDefaultProps,
       text: "hello",
       fontSize: "20px",
       color: "#ffffff",
@@ -44,6 +49,7 @@ export const testComponents: ComponentData[] = [
     name: "l-text",
     layerName: "图层2",
     props: {
+      ...textDefaultProps,
       text: "hello2",
       fontSize: "10px",
       fontWeight: "bold",
@@ -57,6 +63,7 @@ export const testComponents: ComponentData[] = [
     name: "l-text",
     layerName: "图层3",
     props: {
+      ...textDefaultProps,
       text: "hello3",
       fontSize: "15px",
       actionType: "url",
@@ -71,6 +78,7 @@ export const testComponents: ComponentData[] = [
     name: "l-image",
     layerName: "图层4",
     props: {
+      ...imageDefaultProps,
       src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
     },
   },

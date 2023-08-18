@@ -31,9 +31,9 @@
         <a-tabs type="card" v-model:activeKey="activePanel">
           <a-tab-pane key="component" tab="页面设置">
             <div v-if="currentComponent">
-              <PropsTable
+              <EditGroup
                 v-if="!currentComponent.isLocked"
-                :data="currentComponent.props"
+                :props="currentComponent.props"
                 @change="handleChange"
               />
               <a-empty v-else>
@@ -64,6 +64,7 @@ import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
+import EditGroup from "@/components/EditGroup.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
 import LImage from "@/components/LImage.vue";
 import PropsTable from "@/components/PropsTable.vue";
@@ -80,6 +81,7 @@ export default defineComponent({
     ComponentList,
     EditWrapper,
     PropsTable,
+    EditGroup,
   },
   setup() {
     const store = useStore<GlobalDataProps>();

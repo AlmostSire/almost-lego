@@ -39,6 +39,8 @@ import { AllComponentProps } from "../defaultProps";
 import RenderVnode from "./RenderVnode";
 import ColorPicker from "./ColorPicker.vue";
 import ImageProcesser from "./ImageProcesser.vue";
+import ShadowPicker from "./ShadowPicker.vue";
+import IconSwitch from "./IconSwitch.vue";
 
 interface FormProps extends PropToForm {
   value: string;
@@ -52,6 +54,8 @@ export default defineComponent({
     RenderVnode,
     ColorPicker,
     ImageProcesser,
+    ShadowPicker,
+    IconSwitch,
   },
   props: {
     data: {
