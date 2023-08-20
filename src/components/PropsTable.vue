@@ -35,12 +35,13 @@
 import { PropType, computed, defineComponent } from "vue";
 import { reduce } from "lodash-es";
 import { mapPropsToForms, PropsKeys, PropToForm } from "../propsMap";
-import { AllComponentProps } from "../defaultProps";
 import RenderVnode from "./RenderVnode";
 import ColorPicker from "./ColorPicker.vue";
 import ImageProcesser from "./ImageProcesser.vue";
 import ShadowPicker from "./ShadowPicker.vue";
 import IconSwitch from "./IconSwitch.vue";
+import BackgroundProcesser from "@/components/BackgroundProcesser.vue";
+import { AllFormProps } from "@/store/editor";
 
 interface FormProps extends PropToForm {
   value: string;
@@ -56,10 +57,11 @@ export default defineComponent({
     ImageProcesser,
     ShadowPicker,
     IconSwitch,
+    BackgroundProcesser,
   },
   props: {
-    data: {
-      type: Object as PropType<AllComponentProps>,
+    props: {
+      type: Object as PropType<AllFormProps>,
       required: true,
     },
   },
@@ -67,7 +69,7 @@ export default defineComponent({
   setup(props, context) {
     const finalProps = computed(() =>
       reduce(
-        props.data,
+        props.props,
         (result, value, key) => {
           const newKey = key as PropsKeys;
           const item = mapPropsToForms[newKey];

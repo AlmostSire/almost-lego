@@ -6,7 +6,7 @@
         :key="`item-${index}`"
         :header="item.text"
       >
-        <PropsTable :data="item.props" @change="handleChange" />
+        <PropsTable :props="item.props" @change="handleChange" />
         <pre>{{ item.props }}</pre>
       </a-collapse-panel>
     </a-collapse>

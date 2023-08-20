@@ -19,7 +19,7 @@
         <template v-slot:icon><ScissorOutlined /></template>
         裁剪图片
       </a-button>
-      <a-button @click="handleDelete">
+      <a-button v-if="showDelete" @click="handleDelete">
         <template v-slot:icon>
           <DeleteOutlined />
         </template>
@@ -36,7 +36,7 @@ import { computed, ref, watch, nextTick } from "vue";
 import { message } from "ant-design-vue";
 import { ScissorOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import Cropper from "cropperjs";
-import axios from "axios";
+// import axios from "axios";
 
 interface CropperData {
   x: number;
@@ -74,7 +74,7 @@ watch(showModal, async (newValue) => {
   }
 });
 
-const props = defineProps<{ value: string }>();
+const props = defineProps<{ value: string; showDelete?: boolean }>();
 
 const backgrondUrl = computed(() => `url(${props.value})`);
 const baseImageUrl = computed(() => props.value.split("?")[0]);

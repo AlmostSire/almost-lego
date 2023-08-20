@@ -1,8 +1,8 @@
 import { VNode, h } from "vue";
-import type { AllComponentProps } from "./defaultProps";
+import type { AllFormProps } from "./store/editor";
 
 export type Transform<T, U> = (value: T) => U;
-export type PropsKeys = keyof AllComponentProps;
+export type PropsKeys = keyof AllFormProps;
 
 export interface PropToForm {
   component: string;
@@ -208,23 +208,20 @@ export const mapPropsToForms: PropsToForms = {
     afterTransform: (e: any) => e.target.value,
     text: "链接",
   },
-  // backgroundImage: {
-  //   ...defaultHandler,
-  //   component: "background-processer",
-  //   initalTransform: (v: string) => {
-  //     if (v) {
-  //       const reg = /\(["'](.+)["']\)/g;
-  //       const matches = reg.exec(v);
-  //       if (matches && matches.length > 1) {
-  //         console.log(matches);
-  //         return matches[1];
-  //       } else {
-  //         return "";
-  //       }
-  //     } else {
-  //       return "";
-  //     }
-  //   },
-  //   afterTransform: (e: string) => (e ? `url('${e}')` : ""),
-  // },
+  backgroundImage: {
+    ...defaultHandler,
+    component: "background-processer",
+    initialTransform: (v: string) => {
+      if (v) {
+        const reg = /\(["'](.+)["']\)/g;
+        const matches = reg.exec(v);
+        if (matches && matches.length > 1) {
+          console.log(matches);
+          return matches[1];
+        }
+      }
+      return "";
+    },
+    afterTransform: (e: string) => (e ? `url('${e}')` : ""),
+  },
 };

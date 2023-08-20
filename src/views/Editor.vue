@@ -9,17 +9,19 @@
         <a-layout-content class="preview-container">
           <p>画布区域</p>
           <div class="preview-list" id="canvas-area">
-            <EditWrapper
-              v-for="component in components"
-              :key="component.id"
-              :id="component.id"
-              :active="component.id === currentComponentId"
-              @set-active="setActive"
-            >
-              <component :is="component.name" :="component.props">
-                {{ component.props.text }}
-              </component>
-            </EditWrapper>
+            <div class="body-container" :style="page.props">
+              <EditWrapper
+                v-for="component in components"
+                :key="component.id"
+                :id="component.id"
+                :active="component.id === currentComponentId"
+                @set-active="setActive"
+              >
+                <component :is="component.name" :="component.props">
+                  {{ component.props.text }}
+                </component>
+              </EditWrapper>
+            </div>
           </div>
         </a-layout-content>
       </a-layout>
@@ -52,6 +54,9 @@
             >
             </layer-list>
           </a-tab-pane>
+          <a-tab-pane key="page" tab="页面设置">
+            <PropsTable :props="page.props" @change="pageChange" />
+          </a-tab-pane>
         </a-tabs>
       </a-layout-sider>
     </a-layout>
@@ -66,7 +71,6 @@ import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
 import EditGroup from "@/components/EditGroup.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
-import LImage from "@/components/LImage.vue";
 import PropsTable from "@/components/PropsTable.vue";
 import defaultTemplates from "@/defaultTemplates";
 import { ComponentData, UpdatePayload } from "@/store/editor";
@@ -77,7 +81,6 @@ export default defineComponent({
   name: "Editor",
   components: {
     LayerList,
-    LImage,
     ComponentList,
     EditWrapper,
     PropsTable,
@@ -87,6 +90,7 @@ export default defineComponent({
     const store = useStore<GlobalDataProps>();
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);
+    const page = computed(() => store.state.editor.page);
     const currentComponentId = computed(
       () => store.state.editor.currentComponentId
     );
@@ -102,15 +106,20 @@ export default defineComponent({
     const handleChange = (e: UpdatePayload) => {
       store.commit("updateComponent", e);
     };
+    const pageChange = (e: UpdatePayload) => {
+      store.commit("updatePage", e);
+    };
     return {
       currentComponentId,
       currentComponent,
       activePanel,
       components,
       defaultTemplates,
+      page,
       addItem,
       setActive,
       handleChange,
+      pageChange,
     };
   },
 });
