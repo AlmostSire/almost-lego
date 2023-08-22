@@ -15,7 +15,9 @@
                 :key="component.id"
                 :id="component.id"
                 :active="component.id === currentComponentId"
+                :props="component.props"
                 @set-active="setActive"
+                @update-position="updatePosition"
               >
                 <component :is="component.name" :="component.props">
                   {{ component.props.text }}
@@ -67,6 +69,7 @@
 import { GlobalDataProps } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
+import { pickBy, forEach } from "lodash-es";
 import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
 import EditGroup from "@/components/EditGroup.vue";
@@ -109,6 +112,17 @@ export default defineComponent({
     const pageChange = (e: UpdatePayload) => {
       store.commit("updatePage", e);
     };
+    const updatePosition = (data: {
+      left: number;
+      top: number;
+      id: string;
+    }) => {
+      const updatedData = pickBy(data, (v, k) => k !== "id");
+      console.log(updatedData);
+      forEach(updatedData, (v, key) => {
+        store.commit("updateComponent", { key, value: v + "px", id: data.id });
+      });
+    };
     return {
       currentComponentId,
       currentComponent,
@@ -120,6 +134,7 @@ export default defineComponent({
       setActive,
       handleChange,
       pageChange,
+      updatePosition,
     };
   },
 });

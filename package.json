@@ -9,7 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@almost-cli/lego-components": "^1.0.1",
+    "@almost-cli/lego-components": "^1.0.2",
     "ant-design-vue": "^4.0.0",
     "array-move": "^4.0.0",
     "axios": "^1.4.0",

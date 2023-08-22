@@ -7,7 +7,6 @@ import {
   textDefaultProps,
   imageDefaultProps,
 } from "@almost-cli/lego-components";
-import { CSSProperties } from "vue";
 
 export interface EditorProps {
   // 供中间编辑器渲染的数组
@@ -59,47 +58,49 @@ export const testComponents: ComponentData[] = [
       color: "#ffffff",
       lineHeight: "1",
       textAlign: "left",
-      fontFamily: "",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "#efefef",
     },
   },
-  {
-    id: uuidv4(),
-    name: "l-text",
-    layerName: "图层2",
-    props: {
-      ...textDefaultProps,
-      text: "hello2",
-      fontSize: "10px",
-      fontWeight: "bold",
-      lineHeight: "2",
-      textAlign: "left",
-      fontFamily: "",
-    },
-  },
-  {
-    id: uuidv4(),
-    name: "l-text",
-    layerName: "图层3",
-    props: {
-      ...textDefaultProps,
-      text: "hello3",
-      fontSize: "15px",
-      actionType: "url",
-      url: "https://www.baidu.com",
-      lineHeight: "3",
-      textAlign: "left",
-      fontFamily: "",
-    },
-  },
-  {
-    id: uuidv4(),
-    name: "l-image",
-    layerName: "图层4",
-    props: {
-      ...imageDefaultProps,
-      src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-  },
+  // {
+  //   id: uuidv4(),
+  //   name: "l-text",
+  //   layerName: "图层2",
+  //   props: {
+  //     ...textDefaultProps,
+  //     text: "hello2",
+  //     fontSize: "10px",
+  //     fontWeight: "bold",
+  //     lineHeight: "2",
+  //     textAlign: "left",
+  //     fontFamily: "",
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   name: "l-text",
+  //   layerName: "图层3",
+  //   props: {
+  //     ...textDefaultProps,
+  //     text: "hello3",
+  //     fontSize: "15px",
+  //     actionType: "url",
+  //     url: "https://www.baidu.com",
+  //     lineHeight: "3",
+  //     textAlign: "left",
+  //     fontFamily: "",
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   name: "l-image",
+  //   layerName: "图层4",
+  //   props: {
+  //     ...imageDefaultProps,
+  //     src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+  //   },
+  // },
 ];
 const pageDefaultProps = {
   backgroundColor: "#ffffff",

@@ -62,4 +62,8 @@ const onImageUploaded = async (data: { resp: UploadResp; file: File }) => {
   margin: 0 auto;
   margin-bottom: 15px;
 }
+
+.component-item > * {
+  position: static !important;
+}
 </style>
