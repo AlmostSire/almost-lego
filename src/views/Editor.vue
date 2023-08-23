@@ -14,7 +14,7 @@
                 v-for="component in components"
                 :key="component.id"
                 :id="component.id"
-                :active="component.id === currentComponentId"
+                :active="component.id === currentComponent?.id"
                 :props="component.props"
                 @set-active="setActive"
                 @update-position="updatePosition"
@@ -50,7 +50,7 @@
           <a-tab-pane key="layer" tab="图层设置">
             <layer-list
               :list="components"
-              :selectedId="currentComponentId"
+              :selectedId="currentComponent?.id"
               @change="handleChange"
               @select="setActive"
             >
@@ -70,6 +70,7 @@ import { GlobalDataProps } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import { pickBy, forEach } from "lodash-es";
+import initHotKeys from "@/plugins/hotKeys";
 import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
 import EditGroup from "@/components/EditGroup.vue";
@@ -90,15 +91,13 @@ export default defineComponent({
     EditGroup,
   },
   setup() {
+    initHotKeys();
     const store = useStore<GlobalDataProps>();
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);
     const page = computed(() => store.state.editor.page);
-    const currentComponentId = computed(
-      () => store.state.editor.currentComponentId
-    );
-    const currentComponent = computed<ComponentData | null>(
-      () => store.getters.getCurrentElement
+    const currentComponent = computed<ComponentData | undefined>(() =>
+      store.getters.getCurrentElement()
     );
     const addItem = (component: ComponentData) => {
       store.commit("addComponent", component);
@@ -118,13 +117,11 @@ export default defineComponent({
       id: string;
     }) => {
       const updatedData = pickBy(data, (v, k) => k !== "id");
-      console.log(updatedData);
       forEach(updatedData, (v, key) => {
         store.commit("updateComponent", { key, value: v + "px", id: data.id });
       });
     };
     return {
-      currentComponentId,
       currentComponent,
       activePanel,
       components,

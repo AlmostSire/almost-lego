@@ -1,12 +1,16 @@
 import { Module } from "vuex";
-import { GlobalDataProps } from "./index";
+import store, { GlobalDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
+import { message } from "ant-design-vue";
 
 import {
   AllComponentProps,
   textDefaultProps,
   imageDefaultProps,
 } from "@almost-cli/lego-components";
+import { cloneDeep } from "lodash-es";
+
+type MoveDirection = "left" | "right" | "up" | "down";
 
 export interface EditorProps {
   // 供中间编辑器渲染的数组
@@ -15,6 +19,8 @@ export interface EditorProps {
   currentComponentId: string;
   // 页面信息
   page: PageData;
+  // 当前复制的组件
+  copiedComponent?: ComponentData;
 }
 
 export interface PageProps {
@@ -128,19 +134,37 @@ const editor: Module<EditorProps, GlobalDataProps> = {
   },
   mutations: {
     addComponent(state, component: ComponentData) {
+      component.layerName = "图层" + (state.components.length + 1);
       state.components.push(component);
     },
     delComponent(state, id: string) {
       const index = state.components.findIndex((item) => item.id === id);
-      state.components.splice(index, 1);
+      if (index !== -1) {
+        state.components.splice(index, 1);
+        message.success("删除当前图层成功", 1);
+      }
     },
     setActive(state, id: string) {
       state.currentComponentId = id;
     },
+    copyComponent(state, id: string) {
+      const currentComponent = store.getters.getCurrentElement(id);
+      if (currentComponent) {
+        state.copiedComponent = currentComponent;
+        message.success("已拷贝当前图层", 1);
+      }
+    },
+    pasteCopiedComponent(state) {
+      if (state.copiedComponent) {
+        const clone = cloneDeep(state.copiedComponent);
+        clone.id = uuidv4();
+        clone.layerName = clone.layerName + "副本";
+        state.components.push(clone);
+        message.success("已粘贴当前图层", 1);
+      }
+    },
     updateComponent(state, { key, value, id, isRoot }: UpdatePayload) {
-      const currentComponent = state.components.find(
-        (component) => component.id === (id || state.currentComponentId)
-      );
+      const currentComponent = store.getters.getCurrentElement(id);
       if (currentComponent) {
         if (isRoot) {
           (currentComponent as any)[key] = value;
@@ -149,14 +173,65 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         }
       }
     },
+    moveComponent(
+      state,
+      data: { direction: MoveDirection; amount: number; id: string }
+    ) {
+      const { direction, amount, id } = data;
+      const currentComponent = state.components.find(
+        (component) => component.id === id
+      );
+      if (currentComponent) {
+        const oldTop = parseInt(currentComponent.props.top || "0");
+        const oldLeft = parseInt(currentComponent.props.left || "0");
+        switch (direction) {
+          case "up": {
+            const newValue = oldTop - amount + "px";
+            store.commit("updateComponent", {
+              key: "top",
+              value: newValue,
+              id,
+            });
+            break;
+          }
+          case "down": {
+            const newValue = oldTop + amount + "px";
+            store.commit("updateComponent", {
+              key: "top",
+              value: newValue,
+              id,
+            });
+            break;
+          }
+          case "left": {
+            const newValue = oldLeft - amount + "px";
+            store.commit("updateComponent", {
+              key: "left",
+              value: newValue,
+              id,
+            });
+            break;
+          }
+          case "right": {
+            const newValue = oldLeft + amount + "px";
+            store.commit("updateComponent", {
+              key: "left",
+              value: newValue,
+              id,
+            });
+            break;
+          }
+        }
+      }
+    },
     updatePage(state, { key, value }: UpdatePayload) {
       state.page.props[key as keyof PageProps] = value;
     },
   },
   getters: {
-    getCurrentElement(state) {
+    getCurrentElement: (state) => (id?: string) => {
       return state.components.find(
-        (component) => component.id === state.currentComponentId
+        (component) => component.id === (id || state.currentComponentId)
       );
     },
   },

@@ -32,8 +32,9 @@ const onItemClick = (props: AllComponentProps) => {
   const component: ComponentData = {
     name: "l-text",
     id: uuidv4(),
-    props,
+    props: { ...props },
   };
+  console.log(component);
   emit("onItemClick", component);
 };
 

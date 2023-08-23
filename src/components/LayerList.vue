@@ -68,7 +68,7 @@ import { ComponentData } from "../store/editor";
 import InlineEdit from "./InlineEdit.vue";
 import draggable from "vuedraggable";
 
-defineProps<{ list: ComponentData[]; selectedId: string }>();
+defineProps<{ list: ComponentData[]; selectedId?: string }>();
 const emit = defineEmits(["select", "change"]);
 const handleClick = (id: string) => {
   emit("select", id);
