@@ -67,3 +67,7 @@ export const getParentElement = (element: HTMLElement, className: string) => {
   }
   return null;
 };
+
+export const insertAt = <T>(arr: T[], index: number, newItem: T) => {
+  return [...arr.slice(0, index), newItem, ...arr.slice(index)];
+};

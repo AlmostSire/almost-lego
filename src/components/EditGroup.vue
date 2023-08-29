@@ -18,7 +18,7 @@ import { AllComponentProps } from "@almost-cli/lego-components";
 import { PropType, computed, defineComponent, ref } from "vue";
 import { difference } from "lodash-es";
 import PropsTable from "./PropsTable.vue";
-import { UpdatePayload } from "@/store/editor";
+import { UpdateComponentData } from "@/store/editor";
 
 export interface GroupProps {
   text: string;
@@ -98,7 +98,7 @@ export default defineComponent({
         };
       })
     );
-    const handleChange = (e: UpdatePayload) => {
+    const handleChange = (e: UpdateComponentData) => {
       context.emit("change", e);
     };
     return {

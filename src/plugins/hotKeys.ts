@@ -14,7 +14,7 @@ const wrap = (callback: KeyHandler) => {
 
 export default function initHotKeys() {
   const store = useStore<GlobalDataProps>();
-  const currentId = computed(() => store.state.editor.currentComponentId);
+  const currentId = computed(() => store.state.editor.currentId);
   useHotKey("ctrl+c, command+c", () => {
     store.commit("copyComponent", currentId.value);
   });

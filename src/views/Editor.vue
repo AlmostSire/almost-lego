@@ -8,6 +8,7 @@
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
+          <HistoryArea />
           <div class="preview-list" id="canvas-area">
             <div class="body-container" :style="page.props">
               <EditWrapper
@@ -69,7 +70,7 @@
 import { GlobalDataProps } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
-import { pickBy, forEach } from "lodash-es";
+import { pickBy } from "lodash-es";
 import initHotKeys from "@/plugins/hotKeys";
 import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
@@ -77,7 +78,8 @@ import EditGroup from "@/components/EditGroup.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
 import PropsTable from "@/components/PropsTable.vue";
 import defaultTemplates from "@/defaultTemplates";
-import { ComponentData, UpdatePayload } from "@/store/editor";
+import { ComponentData, UpdateComponentData } from "@/store/editor";
+import HistoryArea from "./editor/HistoryArea.vue";
 
 export type TabType = "component" | "layer" | "page";
 
@@ -89,6 +91,7 @@ export default defineComponent({
     EditWrapper,
     PropsTable,
     EditGroup,
+    HistoryArea,
   },
   setup() {
     initHotKeys();
@@ -96,8 +99,8 @@ export default defineComponent({
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);
     const page = computed(() => store.state.editor.page);
-    const currentComponent = computed<ComponentData | undefined>(() =>
-      store.getters.getCurrentElement()
+    const currentComponent = computed<ComponentData | undefined>(
+      () => store.getters.getCurrentElement
     );
     const addItem = (component: ComponentData) => {
       store.commit("addComponent", component);
@@ -105,10 +108,10 @@ export default defineComponent({
     const setActive = (id: string) => {
       store.commit("setActive", id);
     };
-    const handleChange = (e: UpdatePayload) => {
+    const handleChange = (e: UpdateComponentData) => {
       store.commit("updateComponent", e);
     };
-    const pageChange = (e: UpdatePayload) => {
+    const pageChange = (e: UpdateComponentData) => {
       store.commit("updatePage", e);
     };
     const updatePosition = (data: {
@@ -117,8 +120,12 @@ export default defineComponent({
       id: string;
     }) => {
       const updatedData = pickBy(data, (v, k) => k !== "id");
-      forEach(updatedData, (v, key) => {
-        store.commit("updateComponent", { key, value: v + "px", id: data.id });
+      const keys = Object.keys(updatedData);
+      const values = Object.values(updatedData).map((v) => v + "px");
+      store.commit("updateComponent", {
+        key: keys,
+        value: values,
+        id: data.id,
       });
     };
     return {
