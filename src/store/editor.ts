@@ -169,7 +169,6 @@ const debounceChange = (callback: (...args: any) => void, timeout = 1000) => {
 };
 const pushHistory = (state: EditorProps, historyRecord: HistoryProps) => {
   // check history index is already moved
-  console.log(state);
   if (state.historyIndex !== -1) {
     // if moved, delete all the records greater than the index
     state.histories.splice(state.historyIndex);
@@ -288,6 +287,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
           const oldValue = Array.isArray(key)
             ? key.map((k) => currentComponent.props[k])
             : currentComponent.props[key];
+          console.log(key, "oldValue");
           if (!state.cachedOldValues) {
             state.cachedOldValues = oldValue;
           }

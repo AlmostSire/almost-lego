@@ -72,6 +72,7 @@ import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import { pickBy } from "lodash-es";
 import initHotKeys from "@/plugins/hotKeys";
+import initContextMenu from "@/plugins/contextMenu";
 import ComponentList from "@/components/ComponentList.vue";
 import LayerList from "@/components/LayerList.vue";
 import EditGroup from "@/components/EditGroup.vue";
@@ -95,6 +96,7 @@ export default defineComponent({
   },
   setup() {
     initHotKeys();
+    initContextMenu();
     const store = useStore<GlobalDataProps>();
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);

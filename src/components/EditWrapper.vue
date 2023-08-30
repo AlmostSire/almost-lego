@@ -3,6 +3,7 @@
     class="edit-wrapper"
     :class="{ active: active }"
     :style="styles"
+    :data-component-id="id"
     ref="editWrapper"
     @mousedown="startMove"
     @click="hancleClick(id)"

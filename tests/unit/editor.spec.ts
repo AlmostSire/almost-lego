@@ -20,6 +20,9 @@ const getCurrentAndAssert = (text: string) => {
 };
 
 describe("test editor module", () => {
+  beforeAll(() => {
+    jest.useFakeTimers("legacy");
+  });
   it("should have default components", () => {
     expect(store.state.editor.components).toHaveLength(cloneComponents.length);
   });
@@ -83,6 +86,7 @@ describe("test editor module", () => {
       value: "update",
     };
     store.commit("updateComponent", newProps);
+    jest.runAllTimers();
     const currentElement: ComponentData = store.getters.getCurrentElement;
     expect(currentElement.props.text).toBe("update");
 
@@ -92,6 +96,7 @@ describe("test editor module", () => {
       isRoot: true,
     };
     store.commit("updateComponent", newProps2);
+    jest.runAllTimers();
     expect(currentElement.layerName).toBe("new layer");
   });
   it("undo should works fine", () => {
@@ -124,14 +129,17 @@ describe("test editor module", () => {
       value: "update",
     });
 
+    jest.runAllTimers();
+
     store.commit("setActive", "1234");
     getCurrentAndAssert("update");
-
     // undo step 1, text should be back to text1
     store.commit("undo");
+
     getCurrentAndAssert("text1");
-    // undo step 2, delete component should be back at the right postion
     getLengthAndAssert(1);
+    // undo step 2, delete component should be back at the right postion
+
     store.commit("undo");
     getLengthAndAssert(2);
     getLastAndAssert("2345");
