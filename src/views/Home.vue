@@ -1,27 +1,21 @@
 <template>
   <div class="content-container">
+    <h1 v-if="isLoading">template is loading</h1>
     <template-list :list="templates"></template-list>
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted } from "vue";
 import TemplateList from "../components/TemplateList.vue";
 import { useStore } from "vuex";
 import { GlobalDataProps } from "@/store";
 
-export default defineComponent({
-  name: "Home",
-  components: {
-    TemplateList,
-  },
-  setup() {
-    const store = useStore<GlobalDataProps>();
-    const templates = computed(() => store.state.templates.data);
-    return {
-      templates,
-    };
-  },
+const store = useStore<GlobalDataProps>();
+const isLoading = computed(() => store.getters.isOpLoading("fetchTemplates"));
+const templates = computed(() => store.state.templates.data);
+onMounted(() => {
+  store.dispatch("fetchTemplates");
 });
 </script>
 

@@ -1,6 +1,28 @@
 <template>
   <div class="editor" id="editor-layout-main">
     <a-layout>
+      <a-layout-header class="header">
+        <div class="page-title">
+          <router-link to="/">
+            <img
+              alt="慕课乐高"
+              src="../assets/logo-simple.png"
+              class="logo-img"
+            />
+          </router-link>
+          <inline-edit :value="page.title" @change="titleChange" />
+        </div>
+        <div class="page-btn">
+          <a-button type="primary">预览和设置</a-button>
+          <a-button type="primary" @click="saveWork" :loading="saveIsLoading">
+            保存
+          </a-button>
+          <a-button type="primary">发布</a-button>
+          <user-profile :user="userInfo"></user-profile>
+        </div>
+      </a-layout-header>
+    </a-layout>
+    <a-layout>
       <a-layout-sider width="300" :style="{ background: 'red' }">
         <div class="sidebar-container">组件列表</div>
         <ComponentList :list="defaultTemplates" @on-item-click="addItem" />
@@ -10,7 +32,7 @@
           <p>画布区域</p>
           <HistoryArea />
           <div class="preview-list" id="canvas-area">
-            <div class="body-container" :style="page.props">
+            <component :is="'div'" class="body-container" :style="page.props">
               <EditWrapper
                 v-for="component in components"
                 :key="component.id"
@@ -24,7 +46,7 @@
                   {{ component.props.text }}
                 </component>
               </EditWrapper>
-            </div>
+            </component>
           </div>
         </a-layout-content>
       </a-layout>
@@ -68,8 +90,9 @@
 
 <script lang="ts">
 import { GlobalDataProps } from "@/store";
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import { pickBy } from "lodash-es";
 import initHotKeys from "@/plugins/hotKeys";
 import initContextMenu from "@/plugins/contextMenu";
@@ -78,9 +101,12 @@ import LayerList from "@/components/LayerList.vue";
 import EditGroup from "@/components/EditGroup.vue";
 import EditWrapper from "@/components/EditWrapper.vue";
 import PropsTable from "@/components/PropsTable.vue";
+import InlineEdit from "@/components/InlineEdit.vue";
+import UserProfile from "@/components/UserProfile.vue";
 import defaultTemplates from "@/defaultTemplates";
 import { ComponentData, UpdateComponentData } from "@/store/editor";
 import HistoryArea from "./editor/HistoryArea.vue";
+import useSaveWork from "@/hooks/useSaveWork";
 
 export type TabType = "component" | "layer" | "page";
 
@@ -93,17 +119,28 @@ export default defineComponent({
     PropsTable,
     EditGroup,
     HistoryArea,
+    InlineEdit,
+    UserProfile,
   },
   setup() {
     initHotKeys();
     initContextMenu();
+    const route = useRoute();
+    const currentWorkId = route.params.id;
     const store = useStore<GlobalDataProps>();
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);
     const page = computed(() => store.state.editor.page);
+    const userInfo = computed(() => store.state.user);
+    const { saveIsLoading, saveWork } = useSaveWork();
     const currentComponent = computed<ComponentData | undefined>(
       () => store.getters.getCurrentElement
     );
+    onMounted(() => {
+      if (currentWorkId) {
+        store.dispatch("fetchWork", { urlParams: { id: currentWorkId } });
+      }
+    });
     const addItem = (component: ComponentData) => {
       store.commit("addComponent", component);
     };
@@ -115,6 +152,13 @@ export default defineComponent({
     };
     const pageChange = (e: UpdateComponentData) => {
       store.commit("updatePage", e);
+    };
+    const titleChange = (newTitle: string) => {
+      store.commit("updatePage", {
+        key: "title",
+        value: newTitle,
+        isRoot: true,
+      });
     };
     const updatePosition = (data: {
       left: number;
@@ -130,6 +174,7 @@ export default defineComponent({
         id: data.id,
       });
     };
+
     return {
       currentComponent,
       activePanel,
@@ -141,12 +186,16 @@ export default defineComponent({
       handleChange,
       pageChange,
       updatePosition,
+      titleChange,
+      saveWork,
+      saveIsLoading,
+      userInfo,
     };
   },
 });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .preview-container {
   padding: 24px;
   margin: 0;
@@ -168,5 +217,20 @@ export default defineComponent({
   position: fixed;
   margin-top: 50px;
   max-height: 80vh;
+}
+
+.page-title {
+  display: flex;
+}
+.page-title .inline-edit span {
+  font-weight: 500;
+  margin-left: 10px;
+  font-size: 16px;
+}
+.page-btn {
+  display: flex;
+  width: 400px;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

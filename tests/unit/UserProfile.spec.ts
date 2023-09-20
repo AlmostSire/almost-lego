@@ -57,7 +57,7 @@ describe("UserProfile component", () => {
     await wrapper.get("div").trigger("click");
     expect(message.success).toHaveBeenCalledWith("登录成功", 2);
     expect(store.state.user.isLogin).toBeTruthy();
-    expect(store.state.user.userName).toBe("viking");
+    expect(store.state.user.data?.nickName).toBe("viking");
   });
 
   it("should render username  when login is true", async () => {
@@ -72,7 +72,7 @@ describe("UserProfile component", () => {
   it("should call logout and show message, call router.push after timeout", async () => {
     await wrapper.get(".user-profile-dropdown div").trigger("click");
     expect(store.state.user.isLogin).toBeFalsy();
-    expect(store.state.user.userName).toBeUndefined();
+    expect(store.state.user.data?.nickName).toBeUndefined();
     expect(message.success).toHaveBeenLastCalledWith(
       "退出登录成功，2秒后跳转到首页",
       2

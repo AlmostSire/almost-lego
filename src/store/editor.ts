@@ -1,8 +1,9 @@
-import { Module } from "vuex";
-import store, { GlobalDataProps } from "./index";
+import { Module, Mutation } from "vuex";
+import store, { GlobalDataProps, actionCreate } from "./index";
 import { v4 as uuidv4 } from "uuid";
 import { message } from "ant-design-vue";
 import { insertAt } from "@/helper";
+import { RespWorkData } from "./respTypes";
 
 import {
   AllComponentProps,
@@ -38,6 +39,8 @@ export interface EditorProps {
   cachedOldValues: any;
   // 保存最多历史条目记录数
   maxHistoryNumber: number;
+  // 数据是否修改
+  isDirty: boolean;
 }
 
 export interface PageProps {
@@ -51,6 +54,9 @@ export interface PageProps {
 export type AllFormProps = PageProps & AllComponentProps;
 
 export interface PageData {
+  id?: string;
+  desc?: string;
+  coverImg?: string;
   title: string;
   props: PageProps;
 }
@@ -207,6 +213,13 @@ export interface UpdateComponentData {
   isRoot?: boolean;
 }
 
+const setDirtyWrapper = (callback: Mutation<EditorProps>) => {
+  return (state: EditorProps, payload: any) => {
+    state.isDirty = true;
+    callback(state, payload);
+  };
+};
+
 const editor: Module<EditorProps, GlobalDataProps> = {
   state: {
     components: testComponents,
@@ -219,6 +232,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     historyIndex: -1,
     cachedOldValues: null,
     maxHistoryNumber: 5,
+    isDirty: false,
   },
   mutations: {
     resetEditor(state) {
@@ -227,7 +241,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       state.histories = [];
       state.historyIndex = -1;
     },
-    addComponent(state, component: ComponentData) {
+    addComponent: setDirtyWrapper((state, component: ComponentData) => {
       component.layerName = "图层" + (state.components.length + 1);
       state.components.push(component);
       pushHistory(state, {
@@ -236,8 +250,8 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         type: "add",
         data: cloneDeep(component),
       });
-    },
-    delComponent(state, id: string) {
+    }),
+    delComponent: setDirtyWrapper((state, id: string) => {
       const index = state.components.findIndex((item) => item.id === id);
       if (index !== -1) {
         const deleteComponents = state.components.splice(index, 1);
@@ -250,7 +264,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
           index,
         });
       }
-    },
+    }),
     setActive(state, id: string) {
       state.currentId = id;
     },
@@ -261,7 +275,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         message.success("已拷贝当前图层", 1);
       }
     },
-    pasteCopiedComponent(state) {
+    pasteCopiedComponent: setDirtyWrapper((state) => {
       if (state.copiedComponent) {
         const component = cloneDeep(state.copiedComponent);
         component.id = uuidv4();
@@ -275,34 +289,35 @@ const editor: Module<EditorProps, GlobalDataProps> = {
           data: cloneDeep(component),
         });
       }
-    },
-    updateComponent(state, { key, value, id, isRoot }: UpdateComponentData) {
-      const currentComponent = state.components.find(
-        (component) => component.id === (id || state.currentId)
-      );
-      if (currentComponent) {
-        if (isRoot) {
-          (currentComponent as any)[key as string] = value;
-        } else {
-          const oldValue = Array.isArray(key)
-            ? key.map((k) => currentComponent.props[k])
-            : currentComponent.props[key];
-          console.log(key, "oldValue");
-          if (!state.cachedOldValues) {
-            state.cachedOldValues = oldValue;
-          }
-          pushHistoryDebounce(state, { key, value, id });
+    }),
+    updateComponent: setDirtyWrapper(
+      (state, { key, value, id, isRoot }: UpdateComponentData) => {
+        const currentComponent = state.components.find(
+          (component) => component.id === (id || state.currentId)
+        );
+        if (currentComponent) {
+          if (isRoot) {
+            (currentComponent as any)[key as string] = value;
+          } else {
+            const oldValue = Array.isArray(key)
+              ? key.map((k) => currentComponent.props[k])
+              : currentComponent.props[key];
+            if (!state.cachedOldValues) {
+              state.cachedOldValues = oldValue;
+            }
+            pushHistoryDebounce(state, { key, value, id });
 
-          if (Array.isArray(key) && Array.isArray(value)) {
-            key.forEach((keyName, index) => {
-              currentComponent.props[keyName] = value[index];
-            });
-          } else if (typeof key === "string" && typeof value === "string") {
-            currentComponent.props[key] = value;
+            if (Array.isArray(key) && Array.isArray(value)) {
+              key.forEach((keyName, index) => {
+                currentComponent.props[keyName] = value[index];
+              });
+            } else if (typeof key === "string" && typeof value === "string") {
+              currentComponent.props[key] = value;
+            }
           }
         }
       }
-    },
+    ),
     moveComponent(
       state,
       data: { direction: MoveDirection; amount: number; id: string }
@@ -354,9 +369,13 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         }
       }
     },
-    updatePage(state, { key, value }: { key: keyof PageProps; value: string }) {
-      state.page.props[key] = value;
-    },
+    updatePage: setDirtyWrapper((state, { key, value, isRoot }) => {
+      if (isRoot) {
+        state.page[key as keyof PageData] = value;
+      } else {
+        state.page.props[key as keyof PageProps] = value;
+      }
+    }),
     undo(state) {
       if (state.historyIndex === -1) {
         state.historyIndex = state.histories.length - 1;
@@ -404,6 +423,17 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         }
       }
     },
+    fetchWork(state, { data }: RespWorkData) {
+      const { content, ...rest } = data;
+      state.page = { ...state.page, ...rest };
+      if (content.props) {
+        state.page.props = content.props;
+      }
+      state.components = content.components;
+    },
+    saveWork(state) {
+      state.isDirty = false;
+    },
   },
   getters: {
     getCurrentElement: (state) => {
@@ -433,6 +463,10 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       }
       return false;
     },
+  },
+  actions: {
+    fetchWork: actionCreate("/works/:id", "fetchWork"),
+    saveWork: actionCreate("/works/:id", "saveWork", { method: "patch" }),
   },
 };
 
