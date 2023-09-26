@@ -37,8 +37,8 @@ import { RedoOutlined, UndoOutlined } from "@ant-design/icons-vue";
 import { GlobalDataProps } from "@/store";
 
 const store = useStore<GlobalDataProps>();
-const histories = computed(() => store.state.editor.histories);
-const historyIndex = computed(() => store.state.editor.historyIndex);
+// const histories = computed(() => store.state.editor.histories);
+// const historyIndex = computed(() => store.state.editor.historyIndex);
 const undoIsDisabled = computed<boolean>(() => store.getters.checkUndoDisable);
 const redoIsDisabled = computed<boolean>(() => store.getters.checkRedoDisable);
 
@@ -54,7 +54,6 @@ const redoHistory = () => {
 .history-area {
   position: absolute;
   right: 0;
-  z-index: 2000;
 }
 .operation-list {
   display: flex;

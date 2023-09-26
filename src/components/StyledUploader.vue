@@ -1,7 +1,7 @@
 <template>
   <uploader
     class="styled-uploader"
-    action="http://localhost:7001/api/utils/upload-img"
+    action="/utils/upload"
     :show-upload-list="false"
     :before-upload="commonUploadCheck"
     @success="
@@ -22,7 +22,7 @@
     </template>
     <template #uploaded="{ uploadedData }">
       <div class="uploader-container">
-        <img v-if="showUploaded" :src="uploadedData.data[0]" />
+        <img v-if="showUploaded" :src="uploadedData.data.urls[0]" />
         <template v-else>
           <FileImageOutlined />
           <h4>{{ text }}</h4>

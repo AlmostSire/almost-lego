@@ -95,11 +95,6 @@ const cellnumberValidator = (rule: Rule, value: string) => {
 const rules = reactive({
   cellphone: [
     { required: true, message: "手机号码不能为空", trigger: "blur" },
-    // {
-    //   pattern: /^1[3-9]\d{9}$/,
-    //   message: "手机号码格式不正确",
-    //   trigger: "blur",
-    // },
     { asyncValidator: cellnumberValidator, trigger: "blur" },
   ],
   verifyCode: [
@@ -136,7 +131,7 @@ const getCode = () => {
     startCounter();
   });
 };
-let timer = 0;
+let timer: ReturnType<typeof setInterval>;
 const startCounter = () => {
   counter.value--;
   timer = setInterval(() => {
@@ -200,9 +195,7 @@ watch(counter, (newValue) => {
   color: #666666;
   font-size: 19px;
 }
-.login-area .ant-form-item-label {
-  /* display: none; */
-}
+
 .login-area .ant-input-prefix {
   left: auto;
   right: 30px;

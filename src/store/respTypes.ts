@@ -1,9 +1,11 @@
-import { ComponentData, PageData, PageProps } from "./editor";
+import { ChannelProps, ComponentData, PageData, PageProps } from "./editor";
+import { ActionPayload } from ".";
 
 export interface RespData<T = object> {
   errno: number;
   data: T;
   message?: string;
+  payload?: ActionPayload;
 }
 
 export interface ListData<T> {
@@ -12,11 +14,17 @@ export interface ListData<T> {
 }
 
 export interface WorkData extends Omit<PageData, "props"> {
-  content: {
+  channels: ChannelProps[];
+  content?: {
     components: ComponentData[];
     props?: PageProps;
   };
 }
 
+export interface UploadData {
+  urls: string[];
+}
+
 export type RespListData<T> = RespData<ListData<T>>;
 export type RespWorkData = RespData<WorkData>;
+export type RespUploadData = RespData<UploadData>;

@@ -41,7 +41,7 @@ import ImageProcesser from "./ImageProcesser.vue";
 import ShadowPicker from "./ShadowPicker.vue";
 import IconSwitch from "./IconSwitch.vue";
 import BackgroundProcesser from "@/components/BackgroundProcesser.vue";
-import { AllFormProps } from "@/store/editor";
+import { AllComponentProps } from "@almost-cli/lego-components";
 
 interface FormProps extends PropToForm {
   value: string;
@@ -61,7 +61,7 @@ export default defineComponent({
   },
   props: {
     props: {
-      type: Object as PropType<AllFormProps>,
+      type: Object as PropType<AllComponentProps>,
       required: true,
     },
   },

@@ -1,5 +1,4 @@
 import store from "@/store";
-import { testData } from "@/store/templates";
 
 jest.mock("ant-design-vue");
 
@@ -24,7 +23,7 @@ describe("test vuex store", () => {
 
   describe("test template module", () => {
     it("should have defalult templates", () => {
-      expect(store.state.templates.data).toHaveLength(testData.length);
+      expect(store.state.templates.data).toHaveLength(4);
     });
 
     it("should get the corret template by Id", () => {

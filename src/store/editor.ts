@@ -3,7 +3,7 @@ import store, { GlobalDataProps, actionCreate } from "./index";
 import { v4 as uuidv4 } from "uuid";
 import { message } from "ant-design-vue";
 import { insertAt } from "@/helper";
-import { RespWorkData } from "./respTypes";
+import { RespData, RespListData, RespWorkData } from "./respTypes";
 
 import {
   AllComponentProps,
@@ -22,11 +22,18 @@ interface HistoryProps {
   index?: number;
 }
 
+export interface ChannelProps {
+  id: number;
+  name: string;
+  workId: number;
+  status: number;
+}
+
 export interface EditorProps {
   // 供中间编辑器渲染的数组
   components: ComponentData[];
   // 当前编辑的是哪个元素，uuid
-  currentId: string;
+  currentComponentId: string;
   // 页面信息
   page: PageData;
   // 当前复制的组件
@@ -41,6 +48,8 @@ export interface EditorProps {
   maxHistoryNumber: number;
   // 数据是否修改
   isDirty: boolean;
+  // 当前 work 的 channels
+  channels: ChannelProps[];
 }
 
 export interface PageProps {
@@ -54,11 +63,25 @@ export interface PageProps {
 export type AllFormProps = PageProps & AllComponentProps;
 
 export interface PageData {
-  id?: string;
+  id?: number;
+  props?: PageProps;
+  title?: string;
   desc?: string;
   coverImg?: string;
-  title: string;
-  props: PageProps;
+  uuid?: string;
+  setting?: { [key: string]: any };
+  isTemplate?: boolean;
+  isHot?: boolean;
+  isNew?: boolean;
+  author?: string;
+  copiedCount?: number;
+  status?: number;
+  user?: {
+    gender: string;
+    nickName: string;
+    picture: string;
+    userName: string;
+  };
 }
 export interface ComponentData {
   // 这个元素的 属性，属性请详见下面
@@ -92,49 +115,20 @@ export const testComponents: ComponentData[] = [
       backgroundColor: "#efefef",
     },
   },
-  // {
-  //   id: uuidv4(),
-  //   name: "l-text",
-  //   layerName: "图层2",
-  //   props: {
-  //     ...textDefaultProps,
-  //     text: "hello2",
-  //     fontSize: "10px",
-  //     fontWeight: "bold",
-  //     lineHeight: "2",
-  //     textAlign: "left",
-  //     fontFamily: "",
-  //   },
-  // },
-  // {
-  //   id: uuidv4(),
-  //   name: "l-text",
-  //   layerName: "图层3",
-  //   props: {
-  //     ...textDefaultProps,
-  //     text: "hello3",
-  //     fontSize: "15px",
-  //     actionType: "url",
-  //     url: "https://www.baidu.com",
-  //     lineHeight: "3",
-  //     textAlign: "left",
-  //     fontFamily: "",
-  //   },
-  // },
-  // {
-  //   id: uuidv4(),
-  //   name: "l-image",
-  //   layerName: "图层4",
-  //   props: {
-  //     ...imageDefaultProps,
-  //     src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-  //   },
-  // },
+  {
+    id: uuidv4(),
+    name: "l-image",
+    layerName: "图层4",
+    props: {
+      ...imageDefaultProps,
+      src: "http://vue-maker.oss-cn-hangzhou.aliyuncs.com/vue-marker/5f3e3a17c305b1070f455202.jpg",
+      width: "100px",
+    },
+  },
 ];
 const pageDefaultProps = {
   backgroundColor: "#ffffff",
-  backgroundImage:
-    'url("https://static.imooc-lego.com/upload-files/%E5%B9%BC%E5%84%BF%E5%9B%AD%E8%83%8C%E6%99%AF%E5%9B%BE-994372.jpg")',
+  backgroundImage: "",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   height: "560px",
@@ -199,7 +193,7 @@ const pushModifyHistory = (
 ) => {
   pushHistory(state, {
     id: uuidv4(),
-    componentId: id || state.currentId,
+    componentId: id || state.currentComponentId,
     type: "modify",
     data: { oldValue: state.cachedOldValues, newValue: value, key },
   });
@@ -223,7 +217,7 @@ const setDirtyWrapper = (callback: Mutation<EditorProps>) => {
 const editor: Module<EditorProps, GlobalDataProps> = {
   state: {
     components: testComponents,
-    currentId: "",
+    currentComponentId: "",
     page: {
       title: "test title",
       props: pageDefaultProps,
@@ -233,11 +227,12 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     cachedOldValues: null,
     maxHistoryNumber: 5,
     isDirty: false,
+    channels: [],
   },
   mutations: {
     resetEditor(state) {
       state.components = [];
-      state.currentId = "";
+      state.currentComponentId = "";
       state.histories = [];
       state.historyIndex = -1;
     },
@@ -266,7 +261,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       }
     }),
     setActive(state, id: string) {
-      state.currentId = id;
+      state.currentComponentId = id;
     },
     copyComponent(state) {
       const currentComponent = store.getters.getCurrentElement;
@@ -293,7 +288,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     updateComponent: setDirtyWrapper(
       (state, { key, value, id, isRoot }: UpdateComponentData) => {
         const currentComponent = state.components.find(
-          (component) => component.id === (id || state.currentId)
+          (component) => component.id === (id || state.currentComponentId)
         );
         if (currentComponent) {
           if (isRoot) {
@@ -373,7 +368,9 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       if (isRoot) {
         state.page[key as keyof PageData] = value;
       } else {
-        state.page.props[key as keyof PageProps] = value;
+        if (state.page.props) {
+          state.page.props[key as keyof PageProps] = value;
+        }
       }
     }),
     undo(state) {
@@ -423,22 +420,38 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         }
       }
     },
+    //createWork(state, { data }: RespWorkData) {},
     fetchWork(state, { data }: RespWorkData) {
-      const { content, ...rest } = data;
+      const { content, channels, ...rest } = data;
+      state.channels = channels;
       state.page = { ...state.page, ...rest };
-      if (content.props) {
+      if (content?.props) {
         state.page.props = content.props;
       }
-      state.components = content.components;
+      if (content?.components) {
+        state.components = content.components;
+      }
     },
     saveWork(state) {
       state.isDirty = false;
+    },
+    fetchChannels(state, { data }: RespListData<ChannelProps>) {
+      state.channels = data.list;
+    },
+    createChannel(state, { data }: RespData<ChannelProps>) {
+      state.channels = [...state.channels, data];
+    },
+    deleteChannel(state, { payload }: RespData<any>) {
+      if (payload && payload.urlParams) {
+        const { id } = payload.urlParams;
+        state.channels = state.channels.filter((channel) => channel.id !== id);
+      }
     },
   },
   getters: {
     getCurrentElement: (state) => {
       return state.components.find(
-        (component) => component.id === state.currentId
+        (component) => component.id === state.currentComponentId
       );
     },
     getComponentsLength: (state) => state.components.length,
@@ -465,8 +478,22 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     },
   },
   actions: {
+    createWork: actionCreate("/works", "createWork", { method: "post" }),
     fetchWork: actionCreate("/works/:id", "fetchWork"),
     saveWork: actionCreate("/works/:id", "saveWork", { method: "patch" }),
+    publishWork: actionCreate("/works/publish/:id", "publishWork", {
+      method: "post",
+    }),
+    fetchChannels: actionCreate(
+      "/channels/getWorkChannels/:id",
+      "fetchChannels"
+    ),
+    createChannel: actionCreate("/channels", "createChannel", {
+      method: "post",
+    }),
+    deleteChannel: actionCreate("/channels/:id", "deleteChannel", {
+      method: "delete",
+    }),
   },
 };
 

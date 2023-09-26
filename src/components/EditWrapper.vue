@@ -1,5 +1,6 @@
 <template>
-  <div
+  <component
+    :is="'div'"
     class="edit-wrapper"
     :class="{ active: active }"
     :style="styles"
@@ -31,7 +32,7 @@
     <div class="delete-btn">
       <slot name="btn"> x </slot>
     </div> -->
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -128,7 +129,6 @@ const caculateSize = (
 const startResize = (direction: ResizeDirection) => {
   const currentElement = editWrapper.value as HTMLDivElement;
   const { left, right, top, bottom } = currentElement.getBoundingClientRect();
-  console.log(left, right, top, bottom);
   const handleMove = (e: MouseEvent) => {
     isResizing = true;
     const size = caculateSize(direction, e, { left, right, top, bottom });
@@ -227,6 +227,9 @@ const startMove = (e: MouseEvent) => {
 }
 .edit-wrapper .resizers {
   display: none;
+  position: absolute !important;
+  left: 0;
+  top: 0;
 }
 .edit-wrapper.active .resizers {
   display: block;

@@ -1,4 +1,9 @@
+import QRCode from "qrcode";
+import axios from "axios";
+import html2canvas from "html2canvas";
+import { RespUploadData } from "./store/respTypes";
 import { message } from "ant-design-vue";
+import { saveAs } from "file-saver";
 interface CheckCondition {
   format?: string[];
   // 使用多少 M 为单位
@@ -70,4 +75,112 @@ export const getParentElement = (element: HTMLElement, className: string) => {
 
 export const insertAt = <T>(arr: T[], index: number, newItem: T) => {
   return [...arr.slice(0, index), newItem, ...arr.slice(index)];
+};
+
+export const uploadFile = async <R = any>(
+  file: Blob,
+  url = "/utils/upload",
+  fileName = "screenshot.png"
+) => {
+  const newfile = file instanceof File ? file : new File([file], fileName);
+  const formData = new FormData();
+  console.log(newfile);
+  formData.append(newfile.name, newfile);
+  const { data } = await axios.post<R>(url, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+};
+
+export const getCanvasBlob = (canvas: HTMLCanvasElement) => {
+  return new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    });
+  });
+};
+
+export const takeScreenshotAndUpload = async (ele: HTMLElement) => {
+  // get screenshot canvas
+  const canvas = await html2canvas(ele, {
+    width: 375,
+    useCORS: true,
+    scale: 1,
+  });
+  // transform canvas to blob
+  const canvasBlob = await getCanvasBlob(canvas);
+  if (canvasBlob) {
+    // upload blob to server
+    return await uploadFile<RespUploadData>(canvasBlob);
+  }
+};
+
+export const generateQRCode = (id: string, url: string) => {
+  const ele = document.getElementById(id) as HTMLCanvasElement;
+  return QRCode.toCanvas(ele, url, { width: 100 });
+};
+
+export const copyToClipboard = (text: string) => {
+  // create a fake textarea, set value to text
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  // define styles to be hidden
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "-9999px";
+  // append to body and select
+  document.body.appendChild(textarea);
+  textarea.select();
+  // run execCommand in try/catch
+  try {
+    return document.execCommand("copy");
+  } catch (e) {
+    console.warn("copy failed", e);
+  } finally {
+    document.body.removeChild(textarea);
+  }
+};
+
+export const objToQueryString = (obj: Record<string, any>) => {
+  return Object.keys(obj)
+    .map((key) => `${key}=${obj[key]}`)
+    .join("&");
+};
+
+export const downloadFile = (src: string, fileName = "default.png") => {
+  // 创建链接
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.rel = "noopener";
+  if (link.origin !== location.origin) {
+    axios
+      .get(src, { responseType: "blob" })
+      .then((res) => {
+        link.href = URL.createObjectURL(res.data);
+        setTimeout(() => {
+          link.dispatchEvent(new MouseEvent("click"));
+          setTimeout(() => {
+            URL.revokeObjectURL(link.href);
+          }, 10000);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        link.target = "_blank";
+        link.href = src;
+        link.dispatchEvent(new MouseEvent("click"));
+      });
+  } else {
+    // 设置链接属性
+    link.href = src;
+    // 触发事件
+    link.dispatchEvent(new MouseEvent("click"));
+  }
+};
+
+export const downloadImage = (url: string) => {
+  const fileName = url.substring(url.lastIndexOf("/") + 1);
+  saveAs(url, fileName);
 };

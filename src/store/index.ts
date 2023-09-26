@@ -6,10 +6,13 @@ import editor, { EditorProps } from "./editor";
 import global, { GlobalStatus } from "./global";
 import { ActionContext } from "vuex";
 import axios, { AxiosRequestConfig } from "axios";
+import { objToQueryString } from "@/helper";
+import { forEach } from "lodash";
 
 export interface ActionPayload {
   urlParams?: Record<string, any>;
   data?: any;
+  searchParams?: Record<string, any>;
 }
 
 // 第二步， 确定参数
@@ -23,13 +26,18 @@ export function actionCreate(
     context: ActionContext<any, any>,
     payload: ActionPayload = {}
   ) => {
-    const { urlParams, data } = payload;
+    const { urlParams, data, searchParams } = payload;
     let newUrl = url;
     if (urlParams) {
       const toPath = compile(url, { encode: encodeURIComponent });
-
       newUrl = toPath(urlParams);
-      console.log(newUrl);
+    }
+    if (searchParams) {
+      const search = new URLSearchParams();
+      forEach(searchParams, (value, key) => {
+        search.append(key, value);
+      });
+      newUrl += "?" + search.toString();
     }
     // 第三步 写内部重复的逻辑
     const newConfig = {
@@ -38,7 +46,7 @@ export function actionCreate(
       opName: commitName,
     };
     const res = await axios(newUrl, newConfig);
-    context.commit(commitName, res.data);
+    context.commit(commitName, { payload, ...res.data });
     return res.data;
   };
 }

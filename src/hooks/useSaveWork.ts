@@ -4,7 +4,7 @@ import { Modal } from "ant-design-vue";
 import { GlobalDataProps } from "@/store";
 import { computed, onMounted, onUnmounted } from "vue";
 
-const useSaveWork = () => {
+const useSaveWork = (disableSideEffect = false) => {
   const route = useRoute();
   const currentWorkId = route.params.id;
   const store = useStore<GlobalDataProps>();
@@ -13,16 +13,17 @@ const useSaveWork = () => {
   const page = computed(() => store.state.editor.page);
   const isDirty = computed(() => store.state.editor.isDirty);
 
-  const saveWork = () => {
-    const { title, props } = page.value;
+  const saveWork = async () => {
+    const { title, props, coverImg } = page.value;
     const payload = {
       title,
+      coverImg,
       content: {
         components: components.value,
         props,
       },
     };
-    store
+    return store
       .dispatch("saveWork", {
         data: payload,
         urlParams: { id: currentWorkId },
@@ -31,37 +32,39 @@ const useSaveWork = () => {
         console.log(e);
       });
   };
-  let timer = 0;
-  onMounted(() => {
-    timer = setInterval(() => {
-      if (isDirty.value) {
-        saveWork();
-      }
-    }, 1000 * 5);
-  });
-  onUnmounted(() => {
-    clearInterval(timer);
-  });
+  if (!disableSideEffect) {
+    let timer: ReturnType<typeof setInterval>;
+    onMounted(() => {
+      timer = setInterval(() => {
+        if (isDirty.value) {
+          saveWork();
+        }
+      }, 1000 * 5);
+    });
+    onUnmounted(() => {
+      clearInterval(timer);
+    });
 
-  onBeforeRouteLeave((to, from, next) => {
-    if (isDirty.value) {
-      Modal.confirm({
-        title: "作品还未保存，是否保存",
-        okText: "保存",
-        okType: "primary",
-        cancelText: "不保存",
-        onOk: async () => {
-          await saveWork();
-          next();
-        },
-        onCancel: () => {
-          next();
-        },
-      });
-    } else {
-      next();
-    }
-  });
+    onBeforeRouteLeave((to, from, next) => {
+      if (isDirty.value) {
+        Modal.confirm({
+          title: "作品还未保存，是否保存",
+          okText: "保存",
+          okType: "primary",
+          cancelText: "不保存",
+          onOk: async () => {
+            await saveWork();
+            next();
+          },
+          onCancel: () => {
+            next();
+          },
+        });
+      } else {
+        next();
+      }
+    });
+  }
 
   return {
     saveIsLoading,

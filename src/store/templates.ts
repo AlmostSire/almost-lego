@@ -1,72 +1,23 @@
 import { Module } from "vuex";
 import { GlobalDataProps, actionCreate } from "./index";
-import axios from "axios";
-import { RespListData } from "./respTypes";
-export interface TemplateProps {
-  id: number;
-  title: string;
-  coverImg: string;
-  author: string;
-  copiedCount: number;
-}
-export const testData: TemplateProps[] = [
-  {
-    id: 1,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-889755.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-  {
-    id: 2,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-677311.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-  {
-    id: 3,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-682056.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-  {
-    id: 4,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-677311.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-  {
-    id: 5,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-889755.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-  {
-    id: 6,
-    coverImg:
-      "https://static.imooc-lego.com/upload-files/screenshot-677311.png",
-    title: "前端架构师直播海报",
-    author: "viking",
-    copiedCount: 1,
-  },
-];
+import { RespData, RespListData } from "./respTypes";
+import { PageData } from "./editor";
+
+export type TemplateProps = Required<Omit<PageData, "setting" | "props">>;
 
 export interface TemplatesProps {
   data: TemplateProps[];
+  totalTemplates: number;
+  works: TemplateProps[];
+  totalWorks: number;
 }
 
 const templates: Module<TemplatesProps, GlobalDataProps> = {
   state: {
     data: [],
+    totalTemplates: 0,
+    works: [],
+    totalWorks: 0,
   },
   getters: {
     getTemplateById: (state) => (id: number) => {
@@ -75,11 +26,23 @@ const templates: Module<TemplatesProps, GlobalDataProps> = {
   },
   mutations: {
     fetchTemplates(state, rawData: RespListData<TemplateProps>) {
-      state.data = rawData.data.list;
+      const { list, count } = rawData.data;
+      state.data = [...state.data, ...list];
+      state.totalTemplates = count;
+    },
+    fetchTemplate(state, rawData: RespData<TemplateProps>) {
+      state.data = [rawData.data];
+    },
+    fetchWorks(state, rawData: RespListData<TemplateProps>) {
+      const { count, list } = rawData.data;
+      state.works = list;
+      state.totalWorks = count;
     },
   },
   actions: {
     fetchTemplates: actionCreate("/templates", "fetchTemplates"),
+    fetchTemplate: actionCreate("/templates/:id", "fetchTemplate"),
+    fetchWorks: actionCreate("/works", "fetchWorks"),
   },
 };
 

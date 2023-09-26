@@ -14,15 +14,17 @@ const wrap = (callback: KeyHandler) => {
 
 export default function initHotKeys() {
   const store = useStore<GlobalDataProps>();
-  const currentId = computed(() => store.state.editor.currentId);
+  const currentComponentId = computed(
+    () => store.state.editor.currentComponentId
+  );
   useHotKey("ctrl+c, command+c", () => {
-    store.commit("copyComponent", currentId.value);
+    store.commit("copyComponent", currentComponentId.value);
   });
   useHotKey("ctrl+v, command+v", () => {
     store.commit("pasteCopiedComponent");
   });
   useHotKey("backspace, delete", () => {
-    store.commit("delComponent", currentId.value);
+    store.commit("delComponent", currentComponentId.value);
   });
   useHotKey("esc", () => {
     store.commit("setActive", "");
@@ -33,7 +35,7 @@ export default function initHotKeys() {
       store.commit("moveComponent", {
         direction: "up",
         amount: 1,
-        id: currentId.value,
+        id: currentComponentId.value,
       });
     })
   );
@@ -43,7 +45,7 @@ export default function initHotKeys() {
       store.commit("moveComponent", {
         direction: "down",
         amount: 1,
-        id: currentId.value,
+        id: currentComponentId.value,
       });
     })
   );
@@ -53,7 +55,7 @@ export default function initHotKeys() {
       store.commit("moveComponent", {
         direction: "left",
         amount: 1,
-        id: currentId.value,
+        id: currentComponentId.value,
       });
     })
   );
@@ -63,7 +65,7 @@ export default function initHotKeys() {
       store.commit("moveComponent", {
         direction: "right",
         amount: 1,
-        id: currentId.value,
+        id: currentComponentId.value,
       });
     })
   );

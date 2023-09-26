@@ -14,13 +14,12 @@
 
 <script setup lang="ts">
 import { AllComponentProps, imageDefaultProps } from "@/defaultProps";
-// import LText from "@/components/LText.vue";
 import StyledUploader from "./StyledUploader.vue";
-import { UploadResp } from "@/extraType";
 import { ComponentData } from "@/store/editor";
 import { v4 as uuidv4 } from "uuid";
 import { message } from "ant-design-vue";
 import { getImgDemensions } from "@/helper";
+import { RespUploadData } from "@/store/respTypes";
 
 defineProps<{
   list: AllComponentProps[];
@@ -38,7 +37,7 @@ const onItemClick = (props: AllComponentProps) => {
   emit("onItemClick", component);
 };
 
-const onImageUploaded = async (data: { resp: UploadResp; file: File }) => {
+const onImageUploaded = async (data: { resp: RespUploadData; file: File }) => {
   const component: ComponentData = {
     id: uuidv4(),
     name: "l-image",
@@ -47,8 +46,7 @@ const onImageUploaded = async (data: { resp: UploadResp; file: File }) => {
     },
   };
   message.success("上传成功");
-  //componentData.props.src = resp.data.urls[0]
-  component.props.src = data.resp.data[0];
+  component.props.src = data.resp.data.urls[0];
 
   const { width } = await getImgDemensions(data.file);
   const maxWidth = 373;

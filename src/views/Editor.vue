@@ -1,5 +1,17 @@
 <template>
   <div class="editor" id="editor-layout-main">
+    <a-modal
+      title="发布成功"
+      v-model:open="showPublishForm"
+      width="700px"
+      @ok="showPublishForm = false"
+      :footer="null"
+    >
+      <publish-form />
+    </a-modal>
+
+    <PreviewForm :open="showPreviewForm" @change="handleOpen" />
+
     <a-layout>
       <a-layout-header class="header">
         <div class="page-title">
@@ -13,11 +25,13 @@
           <inline-edit :value="page.title" @change="titleChange" />
         </div>
         <div class="page-btn">
-          <a-button type="primary">预览和设置</a-button>
+          <a-button type="primary" @click="preview">预览和设置</a-button>
           <a-button type="primary" @click="saveWork" :loading="saveIsLoading">
             保存
           </a-button>
-          <a-button type="primary">发布</a-button>
+          <a-button type="primary" @click="publish" :loading="isPublishing">
+            发布
+          </a-button>
           <user-profile :user="userInfo"></user-profile>
         </div>
       </a-layout-header>
@@ -26,12 +40,17 @@
       <a-layout-sider width="300" :style="{ background: 'red' }">
         <div class="sidebar-container">组件列表</div>
         <ComponentList :list="defaultTemplates" @on-item-click="addItem" />
+        <img id="test-image" :style="{ width: '300px' }" />
       </a-layout-sider>
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
           <HistoryArea />
-          <div class="preview-list" id="canvas-area">
+          <div
+            class="preview-list"
+            id="canvas-area"
+            :class="{ 'canvas-fix': canvasFix }"
+          >
             <component :is="'div'" class="body-container" :style="page.props">
               <EditWrapper
                 v-for="component in components"
@@ -80,7 +99,7 @@
             </layer-list>
           </a-tab-pane>
           <a-tab-pane key="page" tab="页面设置">
-            <PropsTable :props="page.props" @change="pageChange" />
+            <PropsTable :props="(page.props as any)" @change="pageChange" />
           </a-tab-pane>
         </a-tabs>
       </a-layout-sider>
@@ -90,7 +109,7 @@
 
 <script lang="ts">
 import { GlobalDataProps } from "@/store";
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, nextTick, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { pickBy } from "lodash-es";
@@ -107,6 +126,9 @@ import defaultTemplates from "@/defaultTemplates";
 import { ComponentData, UpdateComponentData } from "@/store/editor";
 import HistoryArea from "./editor/HistoryArea.vue";
 import useSaveWork from "@/hooks/useSaveWork";
+import usePublishWork from "@/hooks/usePublishWork";
+import PublishForm from "./editor/PublishForm.vue";
+import PreviewForm from "./editor/PreviewForm.vue";
 
 export type TabType = "component" | "layer" | "page";
 
@@ -121,6 +143,8 @@ export default defineComponent({
     HistoryArea,
     InlineEdit,
     UserProfile,
+    PublishForm,
+    PreviewForm,
   },
   setup() {
     initHotKeys();
@@ -131,8 +155,12 @@ export default defineComponent({
     const activePanel = ref<TabType>("component");
     const components = computed(() => store.state.editor.components);
     const page = computed(() => store.state.editor.page);
+    const canvasFix = ref(false);
+    const showPublishForm = ref(false);
+    const showPreviewForm = ref(false);
     const userInfo = computed(() => store.state.user);
     const { saveIsLoading, saveWork } = useSaveWork();
+    const { publishWork, isPublishing } = usePublishWork();
     const currentComponent = computed<ComponentData | undefined>(
       () => store.getters.getCurrentElement
     );
@@ -175,6 +203,30 @@ export default defineComponent({
       });
     };
 
+    const publish = async () => {
+      store.commit("setActive", "");
+      const el = document.getElementById("canvas-area") as HTMLElement;
+      canvasFix.value = true;
+      await nextTick();
+      try {
+        await publishWork(el);
+        showPublishForm.value = true;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        canvasFix.value = false;
+      }
+    };
+
+    const preview = async () => {
+      await saveWork();
+      showPreviewForm.value = true;
+    };
+
+    const handleOpen = (value: boolean) => {
+      showPreviewForm.value = value;
+    };
+
     return {
       currentComponent,
       activePanel,
@@ -190,6 +242,13 @@ export default defineComponent({
       saveWork,
       saveIsLoading,
       userInfo,
+      publish,
+      preview,
+      canvasFix,
+      isPublishing,
+      showPublishForm,
+      showPreviewForm,
+      handleOpen,
     };
   },
 });
@@ -218,9 +277,19 @@ export default defineComponent({
   margin-top: 50px;
   max-height: 80vh;
 }
+.preview-list.canvas-fix .edit-wrapper > * {
+  box-shadow: none !important;
+}
+
+.preview-list.canvas-fix {
+  max-height: none;
+  position: absolute;
+}
 
 .page-title {
   display: flex;
+  align-items: center;
+  line-height: normal;
 }
 .page-title .inline-edit span {
   font-weight: 500;

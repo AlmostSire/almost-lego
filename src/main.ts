@@ -15,6 +15,7 @@ export type ICustomAxiosConfig = AxiosRequestConfig & {
   opName?: string;
 };
 const baseBackendURL = "http://localhost:8080";
+export const baseH5URL = "http://localhost:8080";
 axios.defaults.baseURL = `${baseBackendURL}/api/`;
 axios.interceptors.request.use((config) => {
   const newConfig = config as ICustomAxiosConfig;
@@ -28,7 +29,7 @@ axios.interceptors.response.use(
     const newConfig = config as ICustomAxiosConfig;
     store.commit("finishLoading", { opName: newConfig.opName });
     const { errno, message } = data;
-    if (errno !== 0) {
+    if (errno && errno !== 0) {
       store.commit("setError", { status: true, message });
       return Promise.reject(data);
     }

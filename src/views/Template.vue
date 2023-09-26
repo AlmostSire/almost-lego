@@ -2,11 +2,10 @@
   <div class="work-detail-container">
     <a-row type="flex" justify="center" v-if="template">
       <a-col :span="8" class="cover-img">
-        <img :src="template.coverImg" alt="" />
+        <img id="cover-img" :src="template.coverImg" alt="" />
       </a-col>
       <a-col :span="8">
         <h2>{{ template.title }}</h2>
-        <p>{{ template.title }}</p>
         <div class="author">
           <a-avatar>V</a-avatar>
           该模版由 <b>{{ template.author }}</b> 创作
@@ -19,34 +18,33 @@
           <router-link to="/editor">
             <a-button type="primary" size="large"> 使用模版 </a-button>
           </router-link>
-          <a-button size="large"> 下载图片海报 </a-button>
+          <a-button size="large" @click="download"> 下载图片海报 </a-button>
         </div>
       </a-col>
     </a-row>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { GlobalDataProps } from "@/store";
 import { TemplateProps } from "@/store/templates";
+import { downloadImage } from "@/helper";
 
-export default defineComponent({
-  setup() {
-    const route = useRoute();
-    const store = useStore<GlobalDataProps>();
-    const currentId = route.params.id as string;
-    const template = computed<TemplateProps>(() =>
-      store.getters.getTemplateById(parseInt(currentId))
-    );
-    return {
-      route,
-      template,
-    };
-  },
+const route = useRoute();
+const store = useStore<GlobalDataProps>();
+const currentId = route.params.id as string;
+const template = computed<TemplateProps>(() =>
+  store.getters.getTemplateById(parseInt(currentId))
+);
+onMounted(() => {
+  store.dispatch("fetchTemplate", { urlParams: { id: currentId } });
 });
+const download = () => {
+  downloadImage(template.value.coverImg);
+};
 </script>
 
 <style scoped>

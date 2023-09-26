@@ -24,6 +24,13 @@ const routes: Array<RouteRecordRaw> = [
           import(/* webpackChunkName: "template" */ "../views/Template.vue"),
         meta: { title: "模版详情" },
       },
+      {
+        path: "works",
+        name: "works",
+        component: () =>
+          import(/* webpackChunkName: "works" */ "../views/Works.vue"),
+        meta: { title: "我的作品", requiredLogin: true },
+      },
     ],
   },
 
