@@ -1,14 +1,23 @@
 <template>
-  <div class="app-container">
-    <a-spin v-if="showLoading" tip="读取中" class="global-spinner" />
-    <RouterView></RouterView>
-  </div>
+  <a-config-provider
+    :theme="{
+      token: {
+        colorPrimary: '#00b96b',
+      },
+      algorithm: theme.compactAlgorithm,
+    }"
+  >
+    <div class="app-container">
+      <a-spin v-if="showLoading" tip="读取中" class="global-spinner" />
+      <RouterView></RouterView>
+    </div>
+  </a-config-provider>
 </template>
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useStore } from "vuex";
 import { GlobalDataProps } from "@/store";
-import { message } from "ant-design-vue";
+import { message, theme } from "ant-design-vue";
 import { useRoute } from "vue-router";
 const store = useStore<GlobalDataProps>();
 const router = useRoute();

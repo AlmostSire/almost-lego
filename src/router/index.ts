@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import IndexView from "../views/Index.vue";
-import HomeView from "../views/Home.vue";
 import store from "@/store";
 import axios from "axios";
 import { message } from "ant-design-vue";
+import Home from "../views/Home.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "",
         name: "home",
-        component: HomeView,
+        component: Home,
         meta: { title: "欢迎来到慕课乐高" },
       },
       {

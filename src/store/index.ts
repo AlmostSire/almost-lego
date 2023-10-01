@@ -6,8 +6,7 @@ import editor, { EditorProps } from "./editor";
 import global, { GlobalStatus } from "./global";
 import { ActionContext } from "vuex";
 import axios, { AxiosRequestConfig } from "axios";
-import { objToQueryString } from "@/helper";
-import { forEach } from "lodash";
+import { forEach } from "lodash-es";
 
 export interface ActionPayload {
   urlParams?: Record<string, any>;
